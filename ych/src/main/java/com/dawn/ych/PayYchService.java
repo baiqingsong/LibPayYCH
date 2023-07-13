@@ -20,6 +20,7 @@ public class PayYchService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        registerReceiver();
     }
 
     @Override

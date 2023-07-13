@@ -12,6 +12,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        ndk{
+            abiFilters "armeabi-v7a"
+        }
     }
 
     buildTypes {
@@ -30,4 +33,9 @@ dependencies {
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
+    implementation 'com.github.baiqingsong:LibHttp:1.0.6'
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+
 }
