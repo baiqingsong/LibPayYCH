@@ -15,6 +15,7 @@ public class ReqRegisterModel {
     private String TimeSpan;//时间戳
     private boolean IsUnionDevice;//是否是分账设备
     private List<ReqAppVerInfo> AppInfo;//应用信息
+    private int Union;//设置1
 
     public class AppInfo{
 
@@ -66,5 +67,9 @@ public class ReqRegisterModel {
 
     public void setAppInfo(List<ReqAppVerInfo> appInfo) {
         AppInfo = appInfo;
+    }
+
+    public void setUnion(int union) {
+        Union = union;
     }
 }

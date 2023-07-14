@@ -10,6 +10,7 @@ public class ReqAppVerInfo {
     private String Action;//Boot=自动启动
     private String AppTitle;//应用名称
     private String DeviceType;//APK=安卓应用
+    private String slMID;
 
     @NonNull
     @Override
@@ -51,5 +52,9 @@ public class ReqAppVerInfo {
 
     public void setDeviceType(String deviceType) {
         DeviceType = deviceType;
+    }
+
+    public void setSlMID(String slMID) {
+        this.slMID = slMID;
     }
 }

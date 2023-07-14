@@ -25,6 +25,9 @@ public class ResDeviceInfoModel extends BaseResModel{
         private String Sign;//签名
         private int TimeStamp;//时间戳
         private String MacID;//设备id
+        private boolean HasBinding;//是否绑定
+        private String BizServer;//业务服务器地址
+        private String AppKey;//加密key
 
         @NonNull
         @Override
@@ -33,6 +36,9 @@ public class ResDeviceInfoModel extends BaseResModel{
                     "Sign='" + Sign + '\'' +
                     ", TimeStamp=" + TimeStamp +
                     ", MacID='" + MacID + '\'' +
+                    ", HasBinding=" + HasBinding +
+                    ", BizServer='" + BizServer + '\'' +
+                    ", AppKey='" + AppKey + '\'' +
                     '}';
         }
 
@@ -46,6 +52,18 @@ public class ResDeviceInfoModel extends BaseResModel{
 
         public String getMacID() {
             return MacID;
+        }
+
+        public boolean isHasBinding() {
+            return HasBinding;
+        }
+
+        public String getBizServer() {
+            return BizServer;
+        }
+
+        public String getAppKey() {
+            return AppKey;
         }
     }
 }

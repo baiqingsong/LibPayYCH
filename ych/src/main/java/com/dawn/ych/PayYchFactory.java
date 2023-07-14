@@ -39,11 +39,14 @@ public class PayYchFactory {
      * 接口测试
      * @param deviceId 设备序列号
      */
-    public void netTest(String deviceId){
+    public void netTest(String key, String deviceId){
         try {
-//            new YCHUtil().netRegister("SN111111");
-//            new YCHUtil().netGetToken("SN111111");
-            new YCHUtil().netConnectTest();
+//            new YCHUtil().netRegister(key, "a1b78d53233244fabd13550cab76f69b053F");
+//            new YCHUtil().netRegister(key, deviceId);
+//            new YCHUtil().netDeviceInfo(key, deviceId);
+            new YCHUtil().netGetToken(key, "0181ccf2c2304899aaf34022324d99fd", deviceId, "101135317");
+//            new YCHUtil().netConnectTest();
+//            new YCHUtil().netTest();
         } catch (Exception e) {
             e.printStackTrace();
         }
