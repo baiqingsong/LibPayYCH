@@ -1,6 +1,6 @@
 package com.dawn.ych;
 
-public class ResponseStatus {
+class ResponseStatus {
     protected String ErrorCode;//错误码
     protected String Message;//错误信息
 

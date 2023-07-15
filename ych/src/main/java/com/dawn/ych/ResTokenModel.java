@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 获取token返回的数据
  */
-public class ResTokenModel extends BaseResModel{
+class ResTokenModel extends BaseResModel{
     private ResData Data;
 
     @NonNull

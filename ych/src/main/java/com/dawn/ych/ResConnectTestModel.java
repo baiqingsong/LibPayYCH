@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 测试连接返回的数据
  */
-public class ResConnectTestModel extends BaseResModel{
+class ResConnectTestModel extends BaseResModel{
     private ResData Data;
 
     @NonNull

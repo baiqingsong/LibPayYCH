@@ -2,7 +2,7 @@ package com.dawn.ych;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ReqLoginModel {
+class ReqLoginModel {
     @SerializedName("AppID")
     private String AppID;//应用id
     @SerializedName("DevNum")

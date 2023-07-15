@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 注册返回的数据
  */
-public class ResRegisterModel extends BaseResModel{
+class ResRegisterModel extends BaseResModel{
     private ResData Data;
 
     @NonNull

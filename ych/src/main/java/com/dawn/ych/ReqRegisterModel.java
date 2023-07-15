@@ -1,8 +1,10 @@
 package com.dawn.ych;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
-public class ReqRegisterModel {
+class ReqRegisterModel {
     private String OSVer;//操作系统版本，安卓版本
     private String MainBoardNum;//主板序列号
     private int Memery;//内存大小
@@ -17,8 +19,24 @@ public class ReqRegisterModel {
     private List<ReqAppVerInfo> AppInfo;//应用信息
     private int Union;//设置1
 
-    public class AppInfo{
-
+    @NonNull
+    @Override
+    public String toString() {
+        return "ReqRegisterModel{" +
+                "OSVer='" + OSVer + '\'' +
+                ", MainBoardNum='" + MainBoardNum + '\'' +
+                ", Memery=" + Memery +
+                ", Disk=" + Disk +
+                ", OSName='" + OSName + '\'' +
+                ", OSVerName='" + OSVerName + '\'' +
+                ", RegCode='" + RegCode + '\'' +
+                ", DeviceType='" + DeviceType + '\'' +
+                ", MacID='" + MacID + '\'' +
+                ", TimeSpan='" + TimeSpan + '\'' +
+                ", IsUnionDevice=" + IsUnionDevice +
+                ", AppInfo=" + AppInfo +
+                ", Union=" + Union +
+                '}';
     }
 
     public void setOSVer(String OSVer) {

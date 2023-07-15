@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 设备信息返回的数据
  */
-public class ResDeviceInfoModel extends BaseResModel{
+class ResDeviceInfoModel extends BaseResModel{
     private ResData Data;
 
     @NonNull

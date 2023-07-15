@@ -2,7 +2,7 @@ package com.dawn.ych;
 
 import androidx.annotation.NonNull;
 
-public class ReqAppVerInfo {
+class ReqAppVerInfo {
     private String AppName;//包名
     private int HardVer;//硬件版本,sdk版本
     private int SoftVer;//软件版本
@@ -10,7 +10,6 @@ public class ReqAppVerInfo {
     private String Action;//Boot=自动启动
     private String AppTitle;//应用名称
     private String DeviceType;//APK=安卓应用
-    private String slMID;
 
     @NonNull
     @Override
@@ -52,9 +51,5 @@ public class ReqAppVerInfo {
 
     public void setDeviceType(String deviceType) {
         DeviceType = deviceType;
-    }
-
-    public void setSlMID(String slMID) {
-        this.slMID = slMID;
     }
 }

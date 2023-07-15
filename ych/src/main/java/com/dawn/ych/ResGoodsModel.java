@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 商品信息返回的数据
  */
-public class ResGoodsModel extends BaseResModel{
+class ResGoodsModel extends BaseResModel{
     private ResData Data;
 
     @NonNull

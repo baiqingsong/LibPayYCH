@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * 商品信息返回的数据
  */
-public class ReqGoodsModel {
+class ReqGoodsModel {
     private int Price;//价格
     private int Amount;//数量
     private String GoodsName;//商品名称

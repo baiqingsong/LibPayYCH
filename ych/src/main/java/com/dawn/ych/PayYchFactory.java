@@ -2,6 +2,7 @@ package com.dawn.ych;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.dawn.http.http.entity.HttpConfig;
 import com.dawn.http.http.net.HTTPCaller;
@@ -15,6 +16,7 @@ public class PayYchFactory {
     private static PayYchFactory instance = null;
     private PayYchFactory(Context context){
         this.mContext = context;
+        mYCHUtil = new YCHUtil();
     }
     public static PayYchFactory getInstance(Context context){
         if(instance == null){
@@ -28,11 +30,32 @@ public class PayYchFactory {
     }
 
     /**
+     * 初始化，必须调用
+     * @param deviceId 设备序列号
+     * @param key 加密key
+     */
+    public PayYchFactory initValue(String deviceId, String key){
+        PayConstant.deviceId = deviceId;//设备序列号
+        PayConstant.key = key;//加密key
+        return instance;
+    }
+
+    /**
      * 开启服务
      */
-    public void startService(Context context){
-        Intent intent = new Intent(context, PayYchService.class);
-        context.startService(intent);
+    public void startService(OnPayLoginListener listener){
+        PayConstant.payLoginListener = listener;
+        Intent intent = new Intent(mContext, PayYchService.class);
+        mContext.startService(intent);
+    }
+
+    private YCHUtil mYCHUtil;//工具类
+
+    /**
+     * 提交支付订单
+     */
+    public void submitOrder(String transId, int price, OnSubmitOrderListener listener){
+        mYCHUtil.netSubmitOrder(transId, price, listener);
     }
 
     /**
@@ -44,7 +67,7 @@ public class PayYchFactory {
 //            new YCHUtil().netRegister(key, "a1b78d53233244fabd13550cab76f69b053F");
 //            new YCHUtil().netRegister(key, deviceId);
 //            new YCHUtil().netDeviceInfo(key, deviceId);
-            new YCHUtil().netGetToken(key, "0181ccf2c2304899aaf34022324d99fd", deviceId, "101135317");
+//            new YCHUtil().netGetToken(key, "0181ccf2c2304899aaf34022324d99fd", deviceId, "101135317");
 //            new YCHUtil().netConnectTest();
 //            new YCHUtil().netTest();
         } catch (Exception e) {
@@ -52,6 +75,9 @@ public class PayYchFactory {
         }
     }
 
+    /**
+     * 初始化http
+     */
     public void initHttp(){
         HttpConfig httpConfig = new HttpConfig();
         httpConfig.setAgent(true);//有代理的情况能不能访问
