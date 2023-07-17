@@ -10,6 +10,7 @@ class PayConstant {
     public static final String submit_order_url = "/Hardware/api/v1/Order/SubmitOrder";//提交订单地址
     public static final String cancel_pay_url = "/Hardware/api/v1/Order/CancelPay";//取消支付地址
     public static final String order_result_url = "/Hardware/api/v1/Order/BuyResult";//订单结果地址
+    public static final String get_heart_url = "/Hardware/api/v1.0/Public/Heart";//心跳地址
     public static String deviceId;//设备id
     public static String key;//加密key
     public static String token;//登录token

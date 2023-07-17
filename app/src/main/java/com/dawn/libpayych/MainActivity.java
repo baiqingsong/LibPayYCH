@@ -10,6 +10,8 @@ import com.dawn.ych.OnPayLoginListener;
 import com.dawn.ych.OnSubmitOrderListener;
 import com.dawn.ych.PayYchFactory;
 
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void paySubmitOrder(View view){
-        PayYchFactory.getInstance(this).submitOrder(System.currentTimeMillis() + "", 1, new OnSubmitOrderListener() {
+        PayYchFactory.getInstance(this).submitOrder(UUID.randomUUID() + "", 1, new OnSubmitOrderListener() {
             @Override
             public void onSubmitOrderSuccess(String qrCode, String orderId) {
 

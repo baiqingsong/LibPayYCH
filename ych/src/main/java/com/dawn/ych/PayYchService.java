@@ -53,6 +53,8 @@ public class PayYchService extends Service {
     private final static int h_device_info_fail = 0x102;//获取设备信息失败
     private final static int h_connect_test_fail = 0x103;//连接测试失败
     private final static int h_login_fail = 0x104;//登录失败
+    private final static int h_heart_cycle = 0x110;//心跳周期
+    private final static int h_heart_fail = 0x105;//多次心跳失败
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -69,6 +71,13 @@ public class PayYchService extends Service {
                     break;
                 case h_login_fail:
                     sendLoginCommand();
+                    break;
+                case h_heart_cycle:
+                    sendHeartCycleCommand();
+                    break;
+                case h_heart_fail://多次心跳失败
+                    mHandler.removeMessages(h_heart_cycle);
+                    sendRegisterCommand();//重新注册
                     break;
             }
         }
@@ -169,6 +178,7 @@ public class PayYchService extends Service {
                         PayConstant.token = resTokenModel.getData().getToken();
                         if(PayConstant.payLoginListener != null)
                             PayConstant.payLoginListener.onPayLoginStatus(true);
+                        sendHeartCycleCommand();
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -178,6 +188,27 @@ public class PayYchService extends Service {
             @Override
             public void onFail() {
                 mHandler.sendEmptyMessageDelayed(h_login_fail, 1000 * 30);//30秒后重新登录
+            }
+        });
+    }
+
+    /**
+     * 发送心跳指令
+     */
+    private void sendHeartCycleCommand(){
+        mYCHUtil.netHeart(new OnPayYchListener() {
+            @Override
+            public void onSuccess(BaseResModel resModel) {
+                if(resModel == null)
+                    return;
+                mHandler.removeMessages(h_heart_cycle);
+                mHandler.sendEmptyMessageDelayed(h_heart_cycle, 1000 * 60);//1分钟后重新发送心跳
+            }
+
+            @Override
+            public void onFail() {
+                mHandler.removeMessages(h_heart_cycle);
+                mHandler.sendEmptyMessageDelayed(h_heart_cycle, 1000 * 30);//30秒后重新发送心跳
             }
         });
     }

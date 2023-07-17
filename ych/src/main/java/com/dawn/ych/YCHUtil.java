@@ -193,20 +193,91 @@ public class YCHUtil {
     /**
      * 取消支付的请求
      */
-    public void netReturnPay(String token, String orderId){
+    public void netReturnPay(String orderId, OnPayYchListener listener){
         Header[] header = new Header[1];
-        header[0] = new Header("Authorization", token);
+        header[0] = new Header("Authorization", PayConstant.token);
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("OrderID", orderId);//订单id
 
-        HTTPCaller.getInstance().post(BaseResModel.class, PayConstant.cancel_pay_url, header, paramsMap, new RequestDataCallback<BaseResModel>(){
+        HTTPCaller.getInstance().post(BaseResModel.class, PayConstant.base_new_url + PayConstant.cancel_pay_url, header, paramsMap, new RequestDataCallback<BaseResModel>(){
             @Override
             public void dataCallback(BaseResModel obj) {
                 super.dataCallback(obj);
-                Log.e("dawn", "return pay " + obj);
+//                Log.e("dawn", "return pay " + obj);
                 if (obj != null && obj.getResponseStatus() != null && "0".equals(obj.getResponseStatus().getErrorCode())) {
+                    try {
+                        Log.i("dawn", "return pay " + obj);
+                        if(listener != null)
+                            listener.onSuccess(obj);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Log.e("dawn", "return pay fail " + obj);
+                    if(listener != null)
+                        listener.onFail();
+                }
+            }
+        });
+    }
 
+    /**
+     * 获取支付结果
+     * @param orderId 订单id
+     * @param listener 回调
+     */
+    public void netGetPayResult(String orderId, OnPayYchListener listener){
+        Header[] header = new Header[1];
+        header[0] = new Header("Authorization", PayConstant.token);
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("OrderID", orderId);//订单id
 
+        HTTPCaller.getInstance().post(BaseResModel.class, PayConstant.base_new_url + PayConstant.order_result_url, header, paramsMap, new RequestDataCallback<BaseResModel>(){
+            @Override
+            public void dataCallback(BaseResModel obj) {
+                super.dataCallback(obj);
+                if (obj != null && obj.getResponseStatus() != null && "0".equals(obj.getResponseStatus().getErrorCode())) {
+                    try {
+                        Log.i("dawn", "pay result " + obj);
+                        if(listener != null)
+                            listener.onSuccess(obj);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Log.e("dawn", "pay result fail " + obj);
+                    if(listener != null)
+                        listener.onFail();
+                }
+            }
+        });
+    }
+
+    /**
+     * 心跳
+     */
+    public void netHeart(OnPayYchListener listener){
+        Header[] header = new Header[1];
+        header[0] = new Header("Authorization", PayConstant.token);
+        ReqHeartModel bodyModel = getHeart();
+        String bodyJson = new GsonBuilder().create().toJson(bodyModel);
+
+        HTTPCaller.getInstance().post(BaseResModel.class, PayConstant.base_new_url + PayConstant.get_heart_url, header, bodyJson, new RequestDataCallback<BaseResModel>() {
+            @Override
+            public void dataCallback(BaseResModel obj) {
+                super.dataCallback(obj);
+                if(obj != null && obj.getResponseStatus() != null && "0".equals(obj.getResponseStatus().getErrorCode())) {
+                    Log.i("dawn", "heart success");
+                    try{
+                        if(listener != null)
+                            listener.onSuccess(obj);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }else{
+                    Log.e("dawn", "heart fail " + obj);
+                    if(listener != null)
+                        listener.onFail();
                 }
             }
         });
@@ -302,8 +373,8 @@ public class YCHUtil {
      */
     private ReqOrderModel getOrder(String transId, int price){
         ReqOrderModel bodyModel = new ReqOrderModel();
-//        bodyModel.setTransID(transId);
-        bodyModel.setDeviceId(getMacId(PayConstant.deviceId, PayConstant.key));
+        bodyModel.setTransID(transId);
+//        bodyModel.setDeviceId(getMacId(PayConstant.deviceId, PayConstant.key));
         List<ReqGoodsModel> goodsList = new ArrayList<>();
         goodsList.add(getGoods(price));
         bodyModel.setGoodsItem(goodsList);
@@ -322,6 +393,23 @@ public class YCHUtil {
         return reqGoodsModel;
     }
 
+    /**
+     * 获取心跳信息
+     */
+    private ReqHeartModel getHeart(){
+        ReqHeartModel bodyModel = new ReqHeartModel();
+        bodyModel.setNetDelay(0);
+        bodyModel.setWifiStrength(100);
+        bodyModel.setAPMac("camera");
+        bodyModel.setMqOnline(1);
+        return bodyModel;
+    }
+
+    /**
+     * 获取设备id
+     * @param macId 设备id
+     * @param key 加密key
+     */
     public String getMacId(String macId, String key){
         String signatureTemp = SignatureUtils.getSignature(macId, key);
         return macId + signatureTemp.substring(0, 4);
