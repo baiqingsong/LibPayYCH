@@ -6,5 +6,5 @@ package com.dawn.ych;
 public interface OnSubmitOrderListener {
     void onSubmitOrderSuccess(String qrCode, String orderId);
     void onSubmitOrderFail();
-    void onSubmitOrderResult(boolean result);
+    void onSubmitOrderResult(String orderId, boolean result);
 }

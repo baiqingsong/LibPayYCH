@@ -159,7 +159,7 @@ public class YCHUtil {
     /**
      * 生成订单
      */
-    public void netSubmitOrder(String transId, int price, OnSubmitOrderListener listener){
+    public void netSubmitOrder(String transId, float price, OnSubmitOrderListener listener){
         Header[] header = new Header[1];
         header[0] = new Header("Authorization", PayConstant.token);
         ReqOrderModel bodyModel = getOrder(transId, price);
@@ -232,9 +232,9 @@ public class YCHUtil {
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("OrderID", orderId);//订单id
 
-        HTTPCaller.getInstance().post(BaseResModel.class, PayConstant.base_new_url + PayConstant.order_result_url, header, paramsMap, new RequestDataCallback<BaseResModel>(){
+        HTTPCaller.getInstance().post(ResPayResultModel.class, PayConstant.base_new_url + PayConstant.order_result_url, header, paramsMap, new RequestDataCallback<ResPayResultModel>(){
             @Override
-            public void dataCallback(BaseResModel obj) {
+            public void dataCallback(ResPayResultModel obj) {
                 super.dataCallback(obj);
                 if (obj != null && obj.getResponseStatus() != null && "0".equals(obj.getResponseStatus().getErrorCode())) {
                     try {
@@ -318,9 +318,9 @@ public class YCHUtil {
         bodyModel.setDisk(1024);
         bodyModel.setOSName("Android");
         bodyModel.setOSVerName("Java");
-        bodyModel.setDeviceType("0x0001000c");
+        bodyModel.setDeviceType(PayConstant.deviceType);
         bodyModel.setMacID(getMacId(PayConstant.deviceId, PayConstant.key));
-        bodyModel.setRegCode("7NcuKJS63ki12NVMUBx66w");
+        bodyModel.setRegCode(PayConstant.regCode);
         bodyModel.setTimeSpan(System.currentTimeMillis() +"");
         bodyModel.setUnionDevice(false);
         bodyModel.setUnion(1);
@@ -371,7 +371,7 @@ public class YCHUtil {
     /**
      * 获取订单信息
      */
-    private ReqOrderModel getOrder(String transId, int price){
+    private ReqOrderModel getOrder(String transId, float price){
         ReqOrderModel bodyModel = new ReqOrderModel();
         bodyModel.setTransID(transId);
 //        bodyModel.setDeviceId(getMacId(PayConstant.deviceId, PayConstant.key));
@@ -385,7 +385,7 @@ public class YCHUtil {
      * 获取商品信息
      * @param price 价格
      */
-    private ReqGoodsModel getGoods(int price){
+    private ReqGoodsModel getGoods(float price){
         ReqGoodsModel reqGoodsModel = new ReqGoodsModel();
         reqGoodsModel.setPrice(price);
         reqGoodsModel.setAmount(1);

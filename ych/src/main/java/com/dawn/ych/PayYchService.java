@@ -55,6 +55,9 @@ public class PayYchService extends Service {
     private final static int h_login_fail = 0x104;//登录失败
     private final static int h_heart_cycle = 0x110;//心跳周期
     private final static int h_heart_fail = 0x105;//多次心跳失败
+    private final static int h_cycle_order_result = 0x106;//轮询订单结果
+    private final static int h_order_result_cancel = 0x107;//订单取消
+    private final static int h_device_info_cycle = 0x108;//循环查询设备信息
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -64,7 +67,7 @@ public class PayYchService extends Service {
                     sendRegisterCommand();
                     break;
                 case h_device_info_fail:
-                    sendDeviceInfoCommand();
+                    sendDeviceInfoCommand(false);
                     break;
                 case h_connect_test_fail:
                     sendConnectTestCommand();
@@ -78,6 +81,16 @@ public class PayYchService extends Service {
                 case h_heart_fail://多次心跳失败
                     mHandler.removeMessages(h_heart_cycle);
                     sendRegisterCommand();//重新注册
+                    break;
+                case h_cycle_order_result://轮询订单结果
+                    String orderId = (String) msg.obj;
+                    sendOrderResultCommand(orderId);
+                    break;
+                case h_order_result_cancel://订单取消
+                    mHandler.removeMessages(h_cycle_order_result);
+                    break;
+                case h_device_info_cycle://循环查询设备信息
+                    sendDeviceInfoCommand(true);
                     break;
             }
         }
@@ -99,7 +112,7 @@ public class PayYchService extends Service {
                             return;
 
                         PayConstant.deviceSn = resRegisterModel.getData().getDeviceName();
-                        sendDeviceInfoCommand();
+                        sendDeviceInfoCommand(false);
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -116,7 +129,7 @@ public class PayYchService extends Service {
     /**
      * 发送设备信息指令
      */
-    private void sendDeviceInfoCommand(){
+    private void sendDeviceInfoCommand(boolean cycleBind){
         mYCHUtil.netDeviceInfo(new OnPayYchListener() {
             @Override
             public void onSuccess(BaseResModel resModel) {
@@ -127,10 +140,29 @@ public class PayYchService extends Service {
                         ResDeviceInfoModel resDeviceInfoModel = (ResDeviceInfoModel) resModel;
                         if(resDeviceInfoModel.getData() == null)
                             return;
-                        PayConstant.base_new_url = resDeviceInfoModel.getData().getBizServer();
-                        PayConstant.new_key = resDeviceInfoModel.getData().getAppKey();
-                        PayConstant.isBind = resDeviceInfoModel.getData().isHasBinding();
-                        sendConnectTestCommand();
+                        if(cycleBind){//是否查询绑定状态
+
+                            PayConstant.isBind = resDeviceInfoModel.getData().isHasBinding();
+                            if(PayConstant.isBind){
+                                if(PayConstant.payLoginListener != null)
+                                    PayConstant.payLoginListener.onPayBindSuccess();
+                                sendConnectTestCommand();
+                            }else{
+                                mHandler.sendEmptyMessageDelayed(h_device_info_cycle, 5000);//5秒后重新获取设备信息
+                            }
+                        }else{
+                            PayConstant.base_new_url = resDeviceInfoModel.getData().getBizServer();
+                            PayConstant.new_key = resDeviceInfoModel.getData().getAppKey();
+                            PayConstant.isBind = resDeviceInfoModel.getData().isHasBinding();
+                            if(PayConstant.isBind){
+                                sendConnectTestCommand();
+                            }else{
+                                if(PayConstant.payLoginListener != null)
+                                    PayConstant.payLoginListener.onPayBindCode(PayConstant.deviceSn);
+                                mHandler.sendEmptyMessageDelayed(h_device_info_cycle, 5000);//5秒后重新获取设备信息
+                            }
+                        }
+
                     }catch (Exception e){
                         e.printStackTrace();
                     }
@@ -213,6 +245,45 @@ public class PayYchService extends Service {
         });
     }
 
+    /**
+     * 发送订单结果指令
+     */
+    private void sendOrderResultCommand(String orderId){
+        mYCHUtil.netGetPayResult(orderId, new OnPayYchListener() {
+            @Override
+            public void onSuccess(BaseResModel resModel) {
+                if(resModel == null)
+                    return;
+                try{
+                    ResPayResultModel resPayResultModel = (ResPayResultModel) resModel;
+                    if(PayConstant.pay_result_paying.equals(resPayResultModel.getData().getStatus())){//支付状态为支付中
+                        mHandler.removeMessages(h_cycle_order_result);
+                        Message msg = new Message();
+                        msg.what = h_cycle_order_result;
+                        msg.obj = orderId;
+                        mHandler.sendMessageDelayed(msg, 1000);//1秒后重新发送订单结果
+                    }else if(PayConstant.pay_result_complete.equals(resPayResultModel.getData().getStatus())) {//支付状态为支付成功
+                        mHandler.removeMessages(h_cycle_order_result);
+                        if(PayConstant.submitOrderListener != null)
+                            PayConstant.submitOrderListener.onSubmitOrderResult(orderId, true);
+                    }
+                    Log.e("dawn", "订单号：" + orderId + "订单结果：" + resPayResultModel);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFail() {
+                mHandler.removeMessages(h_cycle_order_result);
+                Message msg = new Message();
+                msg.what = h_cycle_order_result;
+                msg.obj = orderId;
+                mHandler.sendMessageDelayed(msg, 1000);//30秒后重新发送订单结果
+            }
+        });
+    }
+
 
     public class PayReceiver extends BroadcastReceiver {
         @Override
@@ -222,7 +293,16 @@ public class PayYchService extends Service {
             String command = intent.getStringExtra("command");
             if(TextUtils.isEmpty(command))
                 return;
-
+            if("get_order_result".equals(command)){//循环查询结果
+                String orderId = intent.getStringExtra("order_id");
+                Message msg = new Message();
+                msg.what = h_cycle_order_result;
+                msg.obj = orderId;
+                mHandler.removeMessages(h_cycle_order_result);
+                mHandler.sendMessageDelayed(msg, 1000);//1秒后发送订单结果
+                mHandler.removeMessages(h_order_result_cancel);
+                mHandler.sendEmptyMessageDelayed(h_order_result_cancel, 90 * 1000);//90秒后取消订单结果查询
+            }
         }
     }
 }

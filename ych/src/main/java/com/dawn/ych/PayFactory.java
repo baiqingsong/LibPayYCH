@@ -10,19 +10,19 @@ import com.dawn.http.http.net.HTTPCaller;
 /**
  * 支付工厂类
  */
-public class PayYchFactory {
+public class PayFactory {
     private Context mContext;
     //单例模式
-    private static PayYchFactory instance = null;
-    private PayYchFactory(Context context){
+    private static PayFactory instance = null;
+    private PayFactory(Context context){
         this.mContext = context;
         mYCHUtil = new YCHUtil();
     }
-    public static PayYchFactory getInstance(Context context){
+    public static PayFactory getInstance(Context context){
         if(instance == null){
-            synchronized (PayYchFactory.class){
+            synchronized (PayFactory.class){
                 if(instance == null){
-                    instance = new PayYchFactory(context);
+                    instance = new PayFactory(context);
                 }
             }
         }
@@ -34,9 +34,11 @@ public class PayYchFactory {
      * @param deviceId 设备序列号
      * @param key 加密key
      */
-    public PayYchFactory initValue(String deviceId, String key){
+    public PayFactory initValue(String deviceId, String key, String deviceType, String regCode){
         PayConstant.deviceId = deviceId;//设备序列号
         PayConstant.key = key;//加密key
+        PayConstant.deviceType = deviceType;//设备类型
+        PayConstant.regCode = regCode;//注册码
         return instance;
     }
 
@@ -49,13 +51,63 @@ public class PayYchFactory {
         mContext.startService(intent);
     }
 
-    private YCHUtil mYCHUtil;//工具类
+    private static YCHUtil mYCHUtil;//工具类
 
     /**
      * 提交支付订单
      */
-    public void submitOrder(String transId, int price, OnSubmitOrderListener listener){
-        mYCHUtil.netSubmitOrder(transId, price, listener);
+    public void submitOrder(String transId, float price, OnSubmitOrderListener listener){
+        PayConstant.submitOrderListener = listener;
+        mYCHUtil.netSubmitOrder(transId, price, new OnSubmitOrderListener() {
+            @Override
+            public void onSubmitOrderSuccess(String qrCode, String orderId) {
+                sendReceiverOrderResult(orderId);
+                if(listener != null)
+                    listener.onSubmitOrderSuccess(qrCode, orderId);
+            }
+
+            @Override
+            public void onSubmitOrderFail() {
+                if(listener != null)
+                    listener.onSubmitOrderFail();
+            }
+
+            @Override
+            public void onSubmitOrderResult(String orderId, boolean result) {
+                if(listener != null)
+                    listener.onSubmitOrderResult(orderId, result);
+            }
+
+        });
+    }
+
+    /**
+     * 取消订单
+     * @param orderId 订单号
+     */
+    public void cancelOrder(String orderId){
+        mYCHUtil.netReturnPay(orderId, new OnPayYchListener() {
+            @Override
+            public void onSuccess(BaseResModel resModel) {
+                Log.e("PayYchFactory", "取消订单成功");
+            }
+
+            @Override
+            public void onFail() {
+                Log.e("PayYchFactory", "取消订单失败");
+            }
+        });
+    }
+
+    /**
+     * 发送广播查询支付结果
+     * @param orderId 订单号
+     */
+    private void sendReceiverOrderResult(String orderId){
+        Intent intent = new Intent(PayConstant.RECEIVER_PAY);
+        intent.putExtra("command", "get_order_result");
+        intent.putExtra("order_id", orderId);
+        mContext.sendBroadcast(intent);
     }
 
     /**

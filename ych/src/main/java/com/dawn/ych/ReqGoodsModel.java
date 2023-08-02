@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
  * 商品信息返回的数据
  */
 class ReqGoodsModel {
-    private int Price;//价格
+    private float Price;//价格
     private int Amount;//数量
     private String GoodsName;//商品名称
 
@@ -20,7 +20,7 @@ class ReqGoodsModel {
                 '}';
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         Price = price;
     }
 

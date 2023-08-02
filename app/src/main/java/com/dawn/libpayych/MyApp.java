@@ -1,14 +1,14 @@
 package com.dawn.libpayych;
 
 import android.app.Application;
-import com.dawn.ych.PayYchFactory;
+import com.dawn.ych.PayFactory;
 
 public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
 
-        PayYchFactory.getInstance(this).initHttp();
+        PayFactory.getInstance(this).initHttp();
     }
 
 

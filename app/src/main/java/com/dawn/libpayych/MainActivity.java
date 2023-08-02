@@ -1,51 +1,53 @@
 package com.dawn.libpayych;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import com.dawn.ych.OnPayLoginListener;
-import com.dawn.ych.OnSubmitOrderListener;
-import com.dawn.ych.PayYchFactory;
+import com.dawn.ych.PayFactory;
 
-import java.util.UUID;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PayYchFactory.getInstance(this).initValue(SystemUtil.getDeviceId(), "3A5B6BF5FAB891783A5B6CF4FAF79275").startService(new OnPayLoginListener() {
-            @Override
-            public void onPayLoginStatus(boolean status) {
-                if(status) {
-                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show());
-                }
-            }
-        });
+        PayFactory.getInstance(this).initValue(SystemUtil.getDeviceId(), "3A5B6BF5FAB891783A5B6CF4FAF79275", "0x006F0001", "1V5vIoViNUy7xiiUudjZwJ")
+                .startService(new OnPayLoginListener() {
+                    @Override
+                    public void onPayLoginStatus(boolean status) {
+                        if(status) {
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show());
+                        }else{
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "登录失败", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+
+                    @Override
+                    public void onPayBindCode(String bindCode) {
+                        Constants.bindCode = bindCode;
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "获取绑定二维码成功", Toast.LENGTH_SHORT).show());
+                    }
+
+                    @Override
+                    public void onPayBindSuccess() {
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "绑定成功", Toast.LENGTH_SHORT).show());
+                    }
+                });
 //        PayYchFactory.getInstance(this).netTest("3A5B6BF5FAB891783A5B6CF4FAF79275", SystemUtil.getDeviceId());
     }
 
-    public void paySubmitOrder(View view){
-        PayYchFactory.getInstance(this).submitOrder(UUID.randomUUID() + "", 1, new OnSubmitOrderListener() {
-            @Override
-            public void onSubmitOrderSuccess(String qrCode, String orderId) {
+    public void jumpToPay(View view){
+        Intent intent = new Intent(this, QrCodeActivity.class);
+        startActivity(intent);
+    }
 
-            }
-
-            @Override
-            public void onSubmitOrderFail() {
-
-            }
-
-            @Override
-            public void onSubmitOrderResult(boolean result) {
-
-            }
-        });
+    public void jumpToBind(View view){
+        Intent intent = new Intent(this, BindActivity.class);
+        startActivity(intent);
     }
 
 }
