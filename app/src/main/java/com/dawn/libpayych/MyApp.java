@@ -8,7 +8,7 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        PayFactory.getInstance(this).initHttp();
+        PayFactory.getInstance(this).initHttp(false);
     }
 
 
