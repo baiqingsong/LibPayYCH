@@ -2,8 +2,8 @@ package com.dawn.ych;
 
 class PayConstant {
     public static final String RECEIVER_PAY = "receiver_pay_ych";//支付服务的广播
-//    public static final String base_url = "https://zh.rapa.vip";//服务器地址
-    public static final String base_url = "https://yzy.gzych.vip";//服务器地址
+    public static final String base_url = "https://zh.rapa.vip";//服务器地址
+//    public static final String base_url = "https://yzy.gzych.vip";//服务器地址
     public static final String register_url = base_url + "/YzyIot/api/v1/Device/RegistWithProduct";//注册地址
     public static final String device_info_url = base_url + "/YzyIot/api/v1/Device/QueryDevice";//设备信息地址
     public static final String connect_test_url = "/Hardware/api/v1.0/Pay/ConnectTest";//连接测试地址
