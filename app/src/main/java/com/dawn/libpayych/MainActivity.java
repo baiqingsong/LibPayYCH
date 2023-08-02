@@ -15,7 +15,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PayFactory.getInstance(this).initValue(SystemUtil.getDeviceId(), "3A5B6BF5FAB891783A5B6CF4FAF79275", "0x006F0001", "1V5vIoViNUy7xiiUudjZwJ")
+        PayFactory.getInstance(this).initValue(SystemUtil.getDeviceId(), "3A5B6BF5FAB891783A5B6CF4FAF79275", "0x0001000c", "7NcuKJS63ki12NVMUBx66w")
                 .startService(new OnPayLoginListener() {
                     @Override
                     public void onPayLoginStatus(boolean status) {

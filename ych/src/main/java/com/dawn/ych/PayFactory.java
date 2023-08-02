@@ -33,6 +33,8 @@ public class PayFactory {
      * 初始化，必须调用
      * @param deviceId 设备序列号
      * @param key 加密key
+     * @param deviceType 设备类型
+     * @param regCode 注册码
      */
     public PayFactory initValue(String deviceId, String key, String deviceType, String regCode){
         PayConstant.deviceId = deviceId;//设备序列号
